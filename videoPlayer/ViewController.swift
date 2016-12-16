@@ -32,6 +32,9 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = UIColor.black
+        
+        print(kDOCUMENT_DIRECTORY_PATH!)
+        
         // An AVPlayerLayer is a CALayer instance to which the AVPlayer can
         // direct its visual output. Without it, the user will see nothing.
         avPlayerLayer = AVPlayerLayer(player: avPlayer)
@@ -230,15 +233,15 @@ class ViewController: UIViewController {
         
         if lyric.count != 0 {
             let lyricTime = stringToTime(lyric[j].time)
-            
-//            let duration2Lyrics = stringToTime(lyric[j+1].time) - stringToTime(lyric[j].time)
-            
+
             if curTime >= lyricTime {
+                
+                let duration2Lyrics = stringToTime(lyric[j+1].time) - stringToTime(lyric[j].time)
                 
                 print("curTime = \(curTime) and lyricTime = \(lyricTime) and content = \(lyric[j].content)")
                 
                 lyricsLabel.text = lyric[j].content
-//
+
 //                let lengthText = lyric[j].content == "" ? 3 : Double(lyric[j].content.characters.count)
 //                
 //                var length = 0.0
