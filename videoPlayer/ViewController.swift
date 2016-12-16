@@ -103,13 +103,14 @@ class ViewController: UIViewController {
         let controlsHeight: CGFloat = 30
         let controlsY: CGFloat = view.bounds.height - controlsHeight
         
-        lyricsLabel.frame = CGRect(x: 5, y: 20, width: 303, height: 30)
+        lyricsLabel.frame = CGRect(x: 36, y: 20, width: 303, height: controlsHeight)
 
         //        textOfLabel(lyric, curTime)
 
         Timer.scheduledTimer(timeInterval: 0.05, target: self, selector: #selector(self.getTextOfLabel), userInfo: nil, repeats: true)
 
         lyricsLabel.font = UIFont.systemFont(ofSize: 14)
+        lyricsLabel.textAlignment = .center
         
         timeRemainingLabel.frame = CGRect(x: 5, y: controlsY, width: 60, height: controlsHeight)
         
@@ -230,15 +231,15 @@ class ViewController: UIViewController {
         let lyric = getLyrics()
         
         let curTime = Double(CMTimeGetSeconds(avPlayer.currentItem!.currentTime()))
-        
-        if lyric.count != 0 {
+        print("j = \(j)")
+        if lyric.count != 0 && j < (lyric.count - 1) {
             let lyricTime = stringToTime(lyric[j].time)
 
             if curTime >= lyricTime {
                 
-                let duration2Lyrics = stringToTime(lyric[j+1].time) - stringToTime(lyric[j].time)
+//                let duration2Lyrics = stringToTime(lyric[j+1].time) - stringToTime(lyric[j].time)
                 
-                print("curTime = \(curTime) and lyricTime = \(lyricTime) and content = \(lyric[j].content)")
+//                print("curTime = \(curTime) and lyricTime = \(lyricTime) and content = \(lyric[j].content)")
                 
                 lyricsLabel.text = lyric[j].content
 
