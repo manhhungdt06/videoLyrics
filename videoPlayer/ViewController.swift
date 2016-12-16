@@ -15,7 +15,7 @@ let kDOCUMENT_DIRECTORY_PATH = NSSearchPathForDirectoriesInDomains(FileManager.S
 class ViewController: UIViewController {
     
     let lyricsLabel = UILabel()
-
+    
     let avPlayer = AVPlayer()
     var avPlayerLayer: AVPlayerLayer!
     
@@ -32,7 +32,6 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = UIColor.black
-        
         // An AVPlayerLayer is a CALayer instance to which the AVPlayer can
         // direct its visual output. Without it, the user will see nothing.
         avPlayerLayer = AVPlayerLayer(player: avPlayer)
@@ -45,7 +44,7 @@ class ViewController: UIViewController {
         
         
         
-        let url = NSURL(string: "http://mv1.mp3.zdn.vn/abd0cfa9f1ec18b241fd/6483461601137111605?key=kt0yglznLkb_GfpdDq9uBw&expires=1481810007")
+        let url = NSURL(string: "http://zmp3-mp3-mv1.zmp3-bdhcm-1.za.zdn.vn/abd0cfa9f1ec18b241fd/6483461601137111605?key=QEynjK3rF07mK3Y_svta0w&expires=1481875598")
         
         //        http://news.video.thethao.vnecdn.net/video/web/mp4/2016/12/14/al-ahli-3-5-barcelona-1481676378.mp4
         //        https://v.cdn.vine.co/r/videos/AA3C120C521177175800441692160_38f2cbd1ffb.1.5.13763579289575020226.mp4
@@ -87,8 +86,6 @@ class ViewController: UIViewController {
     
     override func viewWillLayoutSubviews() {
         
-        var lyric: [Lyrics]!
-        
         super.viewWillLayoutSubviews()
         //        let rect = CGRect(x: 16, y: 73, width: 343, height: 197)
         // Layout subviews manually
@@ -104,15 +101,11 @@ class ViewController: UIViewController {
         let controlsY: CGFloat = view.bounds.height - controlsHeight
         
         lyricsLabel.frame = CGRect(x: 5, y: 20, width: 303, height: 30)
-        
-        lyric = getLyrics()
-        
-        let curTime = Double(CMTimeGetSeconds(avPlayer.currentItem!.currentTime()))
-        
-        textOfLabel(lyric, curTime)
-        
-        lyricsLabel.text = "Hello world" // getLyrics()
-        
+
+        //        textOfLabel(lyric, curTime)
+
+        Timer.scheduledTimer(timeInterval: 0.05, target: self, selector: #selector(self.getTextOfLabel), userInfo: nil, repeats: true)
+
         lyricsLabel.font = UIFont.systemFont(ofSize: 14)
         
         timeRemainingLabel.frame = CGRect(x: 5, y: controlsY, width: 60, height: controlsHeight)
@@ -184,13 +177,13 @@ class ViewController: UIViewController {
     func updateFrame() {
         let curTime = CMTimeGetSeconds(avPlayer.currentItem!.currentTime())
         let videoDuration = CMTimeGetSeconds(avPlayer.currentItem!.duration)
-
+        
         seekSlider.value = Float(curTime/videoDuration)
     }
     
     func getLyrics() -> [Lyrics] {
         var lyricList = [Lyrics]()
-
+        
         if let dir = kDOCUMENT_DIRECTORY_PATH {
             let file = dir + "/lyrics_file.txt"
             let data = try! String(contentsOfFile: file)
@@ -208,7 +201,7 @@ class ViewController: UIViewController {
                 
                 temp[0].remove(at: temp[0].startIndex)
                 
-//                print("mytime[\(i)] = \(temp[0]) - mylyrics[\(i)] = \(temp[1])")
+                //                print("mytime[\(i)] = \(temp[0]) - mylyrics[\(i)] = \(temp[1])")
                 
                 lyricList.append(Lyrics(time: temp[0], content: temp[1]))
             }
@@ -227,10 +220,64 @@ class ViewController: UIViewController {
         return min! * 60 + sec! + msec
     }
     
-    func textOfLabel(_ lyric: [Lyrics],_ curTime: Double) {
-        print("curTime = \(curTime)")
-        for ly in lyric {
-            print("lyric = \(stringToTime(ly.time))")
+    var j = 0
+    
+    func getTextOfLabel() {
+        
+        let lyric = getLyrics()
+        
+        let curTime = Double(CMTimeGetSeconds(avPlayer.currentItem!.currentTime()))
+        
+        if lyric.count != 0 {
+            let lyricTime = stringToTime(lyric[j].time)
+            
+//            let duration2Lyrics = stringToTime(lyric[j+1].time) - stringToTime(lyric[j].time)
+            
+            if curTime >= lyricTime {
+                
+                print("curTime = \(curTime) and lyricTime = \(lyricTime) and content = \(lyric[j].content)")
+                
+                lyricsLabel.text = lyric[j].content
+//
+//                let lengthText = lyric[j].content == "" ? 3 : Double(lyric[j].content.characters.count)
+//                
+//                var length = 0.0
+//                if lengthText < 5 {
+//                    length = lengthText * 1.1
+//                } else if lengthText < 10 && lengthText > 5{
+//                    length = lengthText * 3
+//                } else if lengthText < 15 && lengthText > 10{
+//                    length = lengthText * 4
+//                } else {
+//                    length = lengthText * 5
+//                }
+//                
+//                let characterInterval = duration2Lyrics / length
+//                
+//                lyricsLabel.setTextWithWordTypeAnimation(typedText: lyricsLabel, characterInterval: characterInterval)
+                
+                j += 1
+            }
+            
+        }
+    }
+}
+
+extension UILabel {
+    func setTextWithWordTypeAnimation(typedText: UILabel, characterInterval: Double) {
+        DispatchQueue.global().async {
+            let attributedString = NSMutableAttributedString(string:typedText.text!)
+            for i in 0...typedText.text!.characters.count{
+                
+                DispatchQueue.main.async {
+                    attributedString.addAttribute(NSForegroundColorAttributeName, value: UIColor.red , range:  NSRange(location: 0, length: i) )
+                    typedText.attributedText = attributedString
+                }
+                Thread.sleep(forTimeInterval: characterInterval)
+                
+                attributedString.addAttribute(NSForegroundColorAttributeName, value: UIColor.black , range:  NSRange(location: 0, length: typedText.text!.characters.count))
+                typedText.attributedText = attributedString
+            }
         }
     }
 }
